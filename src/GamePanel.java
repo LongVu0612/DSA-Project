@@ -14,13 +14,13 @@ public class GamePanel extends JPanel {
     private Tile[][] tiles;
     private int score;
     private Stack<Integer> highScores;
-    private Map<String, Integer> savedGame;
+    private int[][] savedTiles;
+    private int savedScore;
 
     public GamePanel() {
         setPreferredSize(new Dimension(500, 500));
         setFocusable(true);
         highScores = new Stack<>();
-        savedGame = new HashMap<>();
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -237,7 +237,8 @@ public class GamePanel extends JPanel {
             }
         }
         for (int i = 0; i < tiles.length - 1; i++) {
-            if (!tiles[i].isEmpty() && tiles[i].getValue() == tiles[i + 1].getValue()) {
+            if (!tiles[i].isEmpty() &&
+                    tiles[i].getValue() == tiles[i + 1].getValue()) {
                 tiles[i].setValue(tiles[i].getValue() * 2);
                 tiles[i + 1].setValue(0);
                 score += tiles[i].getValue(); // Cộng điểm khi kết hợp ô
@@ -318,27 +319,27 @@ public class GamePanel extends JPanel {
     }
 
     private void saveGame() {
-        savedGame.clear();
-        savedGame.put("score", score);
+        savedTiles = new int[GRID_SIZE][GRID_SIZE];
         for (int row = 0; row < GRID_SIZE; row++) {
             for (int col = 0; col < GRID_SIZE; col++) {
-                savedGame.put(row + "," + col, tiles[row][col].getValue());
+                savedTiles[row][col] = tiles[row][col].getValue();
             }
         }
+        savedScore = score;
         JOptionPane.showMessageDialog(this, "Game Saved!", "Save Game", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void loadGame() {
-        if (savedGame.isEmpty()) {
+        if (savedTiles == null) {
             JOptionPane.showMessageDialog(this, "No saved game found!", "Load Game", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        score = savedGame.get("score");
         for (int row = 0; row < GRID_SIZE; row++) {
             for (int col = 0; col < GRID_SIZE; col++) {
-                tiles[row][col].setValue(savedGame.get(row + "," + col));
+                tiles[row][col].setValue(savedTiles[row][col]);
             }
         }
+        score = savedScore;
         JOptionPane.showMessageDialog(this, "Game Loaded!", "Load Game", JOptionPane.INFORMATION_MESSAGE);
     }
 }
